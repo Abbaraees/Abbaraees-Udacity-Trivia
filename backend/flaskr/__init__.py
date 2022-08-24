@@ -39,7 +39,7 @@ def create_app(test_config=None):
     def get_categories():
         categories = Category.query.all()            
         return jsonify({
-            str(c.id): c.type for c in categories
+          'categories':  {str(c.id): c.type for c in categories}
         })
 
 
@@ -108,6 +108,28 @@ def create_app(test_config=None):
     the form will clear and the question will appear at the end of the last page
     of the questions list in the "List" tab.
     """
+    @app.route('/questions', methods=['POST'])
+    def add_question():
+        body = request.get_json()
+        question = body.get('question', None)
+        answer = body.get('answer', None)
+        category = body.get('category', None)
+        difficulty = body.get('difficulty', 1)
+        
+        if not (question or answer):
+            abort(400)
+
+        try:
+            category = Category.query.get(int(category))
+            new_question = Question(question, answer, category.id, difficulty)
+            new_question.insert()
+            
+            return jsonify({
+                'success': True,
+                'created': new_question.id
+            })
+        except:
+            abort(422)
 
     """
     @TODO:

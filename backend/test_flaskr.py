@@ -72,6 +72,27 @@ class TriviaTestCase(unittest.TestCase):
         self.assertFalse(data['success'])
         self.assertEqual(response.status_code, 404)
 
+    def test_add_question(self):
+        question = {
+            'question': 'What is the capital of Nigeria',
+            'answer': 'Lagos',
+            'difficulty': 2,
+            'category': 3
+        }
+        response = self.client().post('/questions', json=question)
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertTrue(data['created'])
+
+    def test_add_question_error(self):
+        response = self.client().post('/questions', json={})
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(data['success'])
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
