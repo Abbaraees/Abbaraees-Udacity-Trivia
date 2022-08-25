@@ -110,6 +110,31 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['success'])
         self.assertEqual(data['total_questions'], 0)
 
+    def test_search_by_category(self):
+        response = self.client().get('/categories/1/questions')
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertTrue(data['questions'])
+        self.assertEqual(data['total_questions'], 3)
+
+        # Second searach
+        response2 = self.client().get('/categories/2/questions')
+        data = json.loads(response2.data)
+
+        self.assertEqual(response2.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertTrue(data['questions'])
+        self.assertEqual(data['total_questions'], 4)
+
+    def test_search_by_category_nonexistance(self):
+        response = self.client().get('/categories/100/questions')
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(data['success'])
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
