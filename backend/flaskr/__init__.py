@@ -1,6 +1,6 @@
 import os
 import sys
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
@@ -115,6 +115,11 @@ def create_app(test_config=None):
         answer = body.get('answer', None)
         category = body.get('category', None)
         difficulty = body.get('difficulty', 1)
+
+        # if request contains search term redirect to
+        # search_question route
+        if body.get('searchTerm'):
+            return search_question(body.get('searchTerm'))
         
         if not (question or answer):
             abort(400)
@@ -141,6 +146,15 @@ def create_app(test_config=None):
     only question that include that string within their question.
     Try using the word "title" to start.
     """
+    def search_question(search_term):
+        questions = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
+        formated_questions = [q.format() for q in questions]
+        
+        return jsonify({
+            'success': True,
+            'questions': formated_questions,
+            'total_questions': len(questions)
+        })
 
     """
     @TODO:
