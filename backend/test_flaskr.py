@@ -136,7 +136,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertFalse(data['success'])
 
     def test_start_quiz(self):
-        response = self.client().post('/quizzes', json={'category': '', 'previous_questions': []})
+        response = self.client().post('/quizzes', json={'quiz_category': {}, 'previous_questions': []})
         data = json.loads(response.data)
 
         self.assertEqual(response.status_code, 200)

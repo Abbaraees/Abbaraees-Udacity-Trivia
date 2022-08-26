@@ -196,10 +196,8 @@ def create_app(test_config=None):
         if not body:
             abort(400)
 
-        category = body.get('quiz_category')['id']
+        category = body.get('quiz_category').get('id')
         previous_questions = body.get('previous_questions', [])
-        print(previous_questions)
-
         
         try:
             if category:
