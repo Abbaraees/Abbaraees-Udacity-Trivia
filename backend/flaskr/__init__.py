@@ -237,28 +237,33 @@ def create_app(test_config=None):
     def not_found(code):
         return jsonify({
             'success': False,
-            'message': 'not found'
+            'message': 'not found',
+            'error': 404
         }), 404
 
     @app.errorhandler(400)
     def bad_request(code):
         return jsonify({
             'success': False,
-            'message': 'bad request'
+            'message': 'bad request',
+            'error': 400
+
         }), 400
 
     @app.errorhandler(422)
     def unprocessed(code):
         return jsonify({
             'success': False,
-            'message': 'request unprocessed'
+            'message': 'request unprocessed',
+            'error': 422
         }), 422
 
     @app.errorhandler(500)
     def server_error(code):
         return jsonify({
             'success': False,
-            'message': 'internal server error'
+            'message': 'internal server error',
+            'error': 500
         }), 500
 
 
