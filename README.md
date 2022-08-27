@@ -1,49 +1,203 @@
-# API Development and Documentation Final Project
+# Udaciti-Trivia
+Udaciti Trivia is a simple web application that allows users to play a series of trivia quizzes from different domains which includes science, geography, history e.t.c.
 
-## Trivia App
+Udaciti-trivia is build using **flask** in the backend and **react** in the frontend.
 
-Udacity is invested in creating bonding experiences for its employees and students. A bunch of team members got the idea to hold trivia on a regular basis and created a webpage to manage the trivia app and play the game, but their API experience is limited and still needs to be built out.
+All backend code follows [PEP8 style guidelines](https://www.python.org/dev/peps/pep-0008/). 
 
-That's where you come in! Help them finish the trivia app so they can start holding trivia and seeing who's the most knowledgeable of the bunch. The application must:
+## Getting Started
+### Prerequisite and Local Development
+#### Backend
+from the backend folder run ```pip install -r requirements.txt``` this will install all the dependencies needed to run the application. the run to start the backend
+```
+export FLASK_APP=flaskr
+export FLASK_ENV=development
+flask run
+```
 
-1. Display questions - both all questions and by category. Questions should show the question, category and difficulty rating by default and can show/hide the answer.
-2. Delete questions.
-3. Add questions and require that they include question and answer text.
-4. Search for questions based on a text query string.
-5. Play the quiz game, randomizing either all questions or within a specific category.
+by default the backend will be served on ```http://localhost:5000/``` which has been already proxied from the frontend.
 
-Completing this trivia app will give you the ability to structure plan, implement, and test an API - skills essential for enabling your future applications to communicate with others.
+#### frontend 
+from the frontend folder run ```npm install``` this will install the dependencies needed for the frontend, then run ```npm start``` to start the frontend.
 
-## Starting and Submitting the Project
+by default the frontend will be served on ```http://localhost:3000/```
 
-[Fork](https://help.github.com/en/articles/fork-a-repo) the project repository and [clone](https://help.github.com/en/articles/cloning-a-repository) your forked repository to your machine. Work on the project locally and make sure to push all your changes to the remote repository before submitting the link to your repository in the Classroom.
+### Tests 
+in order to run the tests navigate to the backend folder the run 
+```
+./init_test_db.sh
+python test_flaskr.py
+```
 
-## About the Stack
+## API Reference
 
-We started the full stack application for you. It is designed with some key functional areas:
+### Getting started
+- Base url: At present the api is served on the default url which is ```http://localhost:5000``` 
+- Authentication: At present the API does not require any authentication or api keys
 
-### Backend
+### Error Handling
+The application uses standard ```HTTP status codes``` for successful or failed operation. Errors are returned as a ```JSON``` object which the following format:
+```json
+{
+    "success": false,
+    "message": "bad request"
+}
+```
+The application will return these errors when a request failed:
+- 400 - Bad Request
+- 404 - Resource Not Found
+- 422 - Not Processable
+- 500 - Internal Server Error
 
-The [backend](./backend/README.md) directory contains a partially completed Flask and SQLAlchemy server. You will work primarily in `__init__.py` to define your endpoints and can reference models.py for DB and SQLAlchemy setup. These are the files you'd want to edit in the backend:
+## Endpoints
+### GET /questions
+- General:
+    - return a list of questions, success, total number of questions
+    - results are paginated in groups of 10. Include a request argument to choose page number, starting from 1. 
+- Sample:
+    - curl http://127.0.0.1:5000/questions
+    ```json
+    {
+    "categories": {
+        "1": "Science", 
+        "2": "Art", 
+        "3": "Geography", 
+        "4": "History", 
+        "5": "Entertainment", 
+        "6": "Sports"
+    }, 
+    "questions": [
+        {
+            "answer": "Maya Angelou", 
+            "category": 4, 
+            "difficulty": 2, 
+            "id": 5, 
+            "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+        }, 
+        {
+            "answer": "Muhammad Ali", 
+            "category": 4, 
+            "difficulty": 1, 
+            "id": 9, 
+            "question": "What boxer's original name is Cassius Clay?"
+        }, 
+        {
+            "answer": "Apollo 13", 
+            "category": 5, 
+            "difficulty": 4, 
+            "id": 2, 
+            "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+        }
+    ],
+    "success": true,
+    "total_questions": 3
+    }
+    ```
 
-1. `backend/flaskr/__init__.py`
-2. `backend/test_flaskr.py`
+### POST /questions
+- General 
+    - add a new questions to the database, accepts question, category and answer from a json object
+    - return success, question in a json response
+- Sample
+    ```shell
+    $ curl -X POST -d '{"question": "What is the capital of India", "answer": "New Delhi", "category": 1}' http://127.0.0.1:5000/
+    ```
+    ```json
+    {
+        "succes": true,
+        "created": 10
+    }
 
-> View the [Backend README](./backend/README.md) for more details.
+    ```
 
-### Frontend
+### DELETE /questions/`<question_id>`
+- General
+    - Delete a specific question from the database with the given `question_id`
+    - return success, deleted in a json response
+- Sample
+    ```json
+    $ curl http://127.0.0.1:5000/questions/1
+    {
+        "success": true,
+        "deleted": 1
+    }
+    ```
 
-The [frontend](./frontend/README.md) directory contains a complete React frontend to consume the data from the Flask server. If you have prior experience building a frontend application, you should feel free to edit the endpoints as you see fit for the backend you design. If you do not have prior experience building a frontend application, you should read through the frontend code before starting and make notes regarding:
+### GET /categories
+- General
+    - return all categories from the database
+- Sample
+    ```json
+    $ curl /categories
 
-1. What are the end points and HTTP methods the frontend is expecting to consume?
-2. How are the requests from the frontend formatted? Are they expecting certain parameters or payloads?
+    {
+    "categories": {
+        "1": "Science",
+        "2": "Art",
+        "3": "Geography",
+        "4": "History",
+        "5": "Entertainment",
+        "6": "Sports"
+    }
+}
+    ```
 
-Pay special attention to what data the frontend is expecting from each API response to help guide how you format your API. The places where you may change the frontend behavior, and where you should be looking for the above information, are marked with `TODO`. These are the files you'd want to edit in the frontend:
+### GET /categories/`<category_id>`/questions
+- General 
+    - return all questions from the category with given `category_id`
+    - response are returned as json with success questions, total_questions, current_category as keys
+- Sample
+    ```json
+    $ curl https://categories/1/questions
+    {
+        "current_category": "Sports", 
+        "questions": [
+            {
+            "answer": "Brazil", 
+            "category": 6, 
+            "difficulty": 3, 
+            "id": 10, 
+            "question": "Which is the only team to play in every soccer World Cup tournament?"
+            }, 
+            {
+            "answer": "Uruguay", 
+            "category": 6, 
+            "difficulty": 4, 
+            "id": 11, 
+            "question": "Which country won the first ever soccer World Cup in 1930?"
+            }
+        ], 
+        "success": true, 
+        "total_questions": 2
+    }
+    ````
+### POST /quizzes
+- General
+    - accepts a json with `current_category`, `previous_questions`
+    - return a random question from the given category if specified that is not already added to the `previous_questions` array.
+- Sample
+    ```shell
+    $ curl -X POST -H "Content-Type: application/json;" -d '{"quiz_category": {"id": 6, "type": "Sports"}, "previous_questions": []}' http://127.0.0.1:5000/quizzes
+    
+    ```
+    ```json
+    {
+    "previous_questions": [], 
+    "question": {
+        "answer": "Uruguay", 
+        "category": 6, 
+        "difficulty": 4, 
+        "id": 11, 
+        "question": "Which country won the first ever soccer World Cup in 1930?"
+    }, 
+    "success": true
+    }
+    ```
 
-1. `frontend/src/components/QuestionView.js`
-2. `frontend/src/components/FormView.js`
-3. `frontend/src/components/QuizView.js`
+## Deployment N/A
 
-By making notes ahead of time, you will practice the core skill of being able to read and understand code and will have a simple plan to follow to build out the endpoints of your backend API.
+## Authors
+Your truly, Muhammad Lawal (Abba Raees)
 
-> View the [Frontend README](./frontend/README.md) for more details.
+## Acknowledgements
+My sincere gratitude goes to all the members of the alx community and Udacity for all the support they gave during the course of the program.
